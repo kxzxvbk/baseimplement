@@ -27,6 +27,10 @@ file -> settings -> Project -> Python Interpreter
 
 运行main.py即可（首次运行要先运行utils/txt2json生成中间数据）
 
+如果cuda可用，在config里面把use_cuda的默认值设置成True
+
+如果想load以前的最佳模型， 在config里面把resume的默认值设置成True
+
 ## 四、TODO
 
 更换模型，如svm、其它神经网络等。。。
