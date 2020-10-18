@@ -15,6 +15,7 @@ import configs
    调整embedding的dim
    调整output_channel
    调整loss，不能用均方误差，要加大对挑不出1的惩罚
+   加长训练时间
 如果都没的救，可能只能换model了
 """
 

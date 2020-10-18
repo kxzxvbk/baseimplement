@@ -122,7 +122,7 @@ def words_filter(word_total):
 
 
 def dump_voc_tab(voc_tab):
-    diction = {voc_tab[l]: l for l in range(len(voc_tab))}
+    diction = {voc_tab[l]: l + 1 for l in range(len(voc_tab))}
     with open('./data/voc_tab.json', 'w') as f:
         json.dump(diction, f)
     print('Vocabulary tab created! Total number: ' + str(len(voc_tab)))
