@@ -1,6 +1,5 @@
 from __future__ import print_function
 import os
-import time
 import shutil
 import torch
 
@@ -43,7 +42,6 @@ class Checkpoint:
         print("Loading checkpoints from {}".format(path))
         resume_checkpoint = torch.load(os.path.join(path, cls.TRAINER_STATE_NAME))
         model = torch.load(os.path.join(path, cls.MODEL_NAME))
-        model.flatten_parameters()
         optimizer = resume_checkpoint['optimizer']
         return Checkpoint(model=model,
                           optimizer=optimizer,
