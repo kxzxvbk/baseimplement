@@ -14,7 +14,7 @@ import configs
 可能的解决方案：
    调整embedding的dim
    调整output_channel
-   调整loss，不能用均方误差，要加大对挑不出1的惩罚
+   调整loss，在loss设置中，我把对类别1的惩罚调到了4倍
    加长训练时间
 如果都没的救，可能只能换model了
 """
@@ -28,7 +28,6 @@ def test(dtloader, mdl, epo_id):
     :return: f1(比赛评价标准)
     """
     acc = 0
-    total = dtloader.__len__()
     total_acc2 = 0
     total_acc1 = 0
     print('Testing model in EPOCH {}'.format(epo_id))
@@ -36,16 +35,16 @@ def test(dtloader, mdl, epo_id):
         xx = dt['que'].long()
         yy = dt['ans'].long()
         ans = dt['res'].float()
-        ans_pred = mdl(xx, yy)
-        if ans_pred.item() >= 0.5 and ans == 1:
+        ans_pred = mdl(xx, yy).squeeze(0)
+        if ans_pred[1] >= ans_pred[0] and ans == 1:
             acc += 1
         if ans == 1:
             total_acc2 += 1
-        if ans_pred.item() >= 0.5:
+        if ans_pred[1] >= ans_pred[0]:
             total_acc1 += 1
 
-    acc_rate = acc / (total_acc1 + 1)
-    recall_rate = acc / (total_acc2 + 1)
+    acc_rate = (acc + 1) / (total_acc1 + 1)
+    recall_rate = (acc + 1) / (total_acc2 + 1)
     f1 = 2 / (1 / acc_rate + 1 / recall_rate)
     return f1
 
@@ -85,7 +84,9 @@ def train():
                             optim.Adam(model.parameters(), lr=0, betas=(0.9, 0.98), eps=1e-9))
 
     # define loss
-    loss = nn.MSELoss()
+    loss = nn.CrossEntropyLoss(weight=torch.tensor([1., 4.]))
+    if use_cuda:
+        loss = loss.cuda()
 
     # training
     for i in range(start_epoch, args.epochs):
@@ -103,7 +104,7 @@ def train():
             j += 1
             x = data['que'].long()
             y = data['ans'].long()
-            res = data['res'].float()
+            res = data['res'].long()
             if use_cuda:
                 x, y, res = x.cuda(), y.cuda(), res.cuda()
             res_pred = model(x, y)

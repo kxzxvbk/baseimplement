@@ -29,9 +29,15 @@ class TopModuleCNN(nn.Module):
         super(TopModuleCNN, self).__init__()
         self.conv_net1 = ConvNet(voc_size, output_channel)
         self.conv_net2 = ConvNet(voc_size, output_channel)
+        self.linear1 = nn.Linear(2 * output_channel, output_channel)
+        self.linear2 = nn.Linear(output_channel, 2)
 
     def forward(self, x, y):
         x1 = self.conv_net1(x)
         y1 = self.conv_net2(y)
 
-        return torch.sigmoid(x1.dot(y1.t())).unsqueeze(0)
+        z = torch.cat([x1, y1])
+        z = torch.relu(self.linear1(z))
+        z = self.linear2(z)
+
+        return z.unsqueeze(0)
